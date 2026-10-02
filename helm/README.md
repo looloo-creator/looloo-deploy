@@ -1,6 +1,7 @@
-# Looloo Helm deployment
+# Looloo Helm deployments
 
-This chart deploys the Looloo API, web app, and Kong gateway as a single release.
+The app and monitoring stacks are separate Helm charts/releases in this repo.
+The app chart deploys the Looloo API, web app, and Kong gateway together.
 
 ## Install
 
@@ -24,6 +25,20 @@ helm upgrade looloo ./looloo-deploy/helm/looloo \
 ```bash
 helm uninstall looloo --namespace looloo
 ```
+
+## Monitoring
+
+After installing the app release, install Prometheus, Grafana, and the
+application scrape monitors as a separate release:
+
+```bash
+helm dependency update ./looloo-deploy/helm/looloo-monitor
+helm upgrade --install looloo-monitor ./looloo-deploy/helm/looloo-monitor \
+  --namespace monitoring --create-namespace --wait=false
+```
+
+See [the monitoring guide](./looloo-monitor/README.md) for Grafana access and
+Minikube-specific scrape limitations.
 
 ## Notes
 

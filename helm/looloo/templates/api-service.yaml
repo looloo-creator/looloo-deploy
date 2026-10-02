@@ -14,4 +14,7 @@ spec:
     - name: http
       port: 3000
       targetPort: http
+    - name: metrics
+      port: 9464
+      targetPort: metrics
     {{- end }}

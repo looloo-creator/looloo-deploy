@@ -1,0 +1,61 @@
+kube-prometheus-stack:
+  alertmanager:
+    enabled: false
+
+  kubeControllerManager:
+    enabled: false
+
+  kubeEtcd:
+    enabled: false
+
+  kubeScheduler:
+    enabled: false
+
+  grafana:
+    enabled: true
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  kube-state-metrics:
+    enabled: true
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  nodeExporter:
+    enabled: true
+
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      retention: 3d
+      serviceMonitorSelectorNilUsesHelmValues: true
+      serviceMonitorNamespaceSelector: {}
+      resources:
+        requests:
+          cpu: 150m
+          memory: 384Mi
+        limits:
+          cpu: 750m
+          memory: 1Gi
+
+  prometheusOperator:
+    enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 384Mi

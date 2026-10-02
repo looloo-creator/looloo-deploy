@@ -31,9 +31,14 @@ spec:
               value: 0.0.0.0:8000
             - name: KONG_NGINX_WORKER_PROCESSES
               value: "1"
+            - name: KONG_STATUS_LISTEN
+              value: 0.0.0.0:8100
           ports:
             - name: proxy
               containerPort: 8000
+              protocol: TCP
+            - name: metrics
+              containerPort: 8100
               protocol: TCP
           readinessProbe:
             tcpSocket:

@@ -1,7 +1,7 @@
 # Looloo Deployment
 
-Helm chart and local Minikube lifecycle scripts for the Looloo web app, API,
-and Kong Gateway.
+Helm charts and local Minikube lifecycle scripts for the Looloo web app, API,
+Kong Gateway, Prometheus, and Grafana.
 
 ## Workspace Layout
 
@@ -35,3 +35,10 @@ localhost URL. To stop the Looloo workloads and helper processes:
 
 See [the chart guide](helm/looloo/README.md) for deployment details and
 database network requirements.
+
+## Monitoring
+
+The monitoring stack is a separate Helm chart and release in
+`helm/looloo-monitor`. Install the Looloo app chart first, then follow the
+[monitoring guide](helm/looloo-monitor/README.md). Keeping it as a separate
+release lets monitoring be upgraded or removed independently of the app.
