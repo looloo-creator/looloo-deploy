@@ -5,19 +5,27 @@ exporters plus scrape targets for the Looloo API and Kong.
 
 ## Install
 
-Install the Looloo application chart first. The API Service must expose its
-`metrics` port and Kong must have its Prometheus plugin enabled. Run these
-commands from the workspace root:
+From the workspace root, use the local launcher to install or upgrade this
+release and open Grafana on an available localhost port:
+
+```bash
+./looloo-deploy/scripts/start-monitor.sh
+```
+
+Use `./looloo-deploy/scripts/stop-monitor.sh` to stop the monitoring release
+and its local port-forward. For direct Helm installation, first install the Looloo
+application chart. Its API Service must expose the `metrics` port and Kong must
+have its Prometheus plugin enabled. Then run from the workspace root:
 
 ```bash
 helm dependency update ./looloo-deploy/helm/looloo-monitor
 helm upgrade --install looloo-monitor ./looloo-deploy/helm/looloo-monitor \
   --namespace monitoring --create-namespace --wait=false
-kubectl -n monitoring rollout status statefulset/looloo-monitor-kube-prometheus-prometheus
+kubectl -n monitoring rollout status statefulset/prometheus-looloo-monitor-kube-promet-prometheus
 kubectl -n monitoring rollout status deployment/looloo-monitor-grafana
 ```
 
-Open Grafana locally:
+Open Grafana locally if you did not use `start-monitor.sh`:
 
 ```bash
 kubectl -n monitoring port-forward service/looloo-monitor-grafana 13001:80

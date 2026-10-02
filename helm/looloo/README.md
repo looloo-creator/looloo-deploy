@@ -6,9 +6,10 @@ before forwarding them to the API.
 
 ## Deploy to Minikube
 
-From the workspace root, `./looloo-deploy/scripts/start.sh` starts the local
-stack and prints its localhost URL. Run `./looloo-deploy/scripts/stop.sh` to stop the Looloo
-workloads and the helper processes started by the launcher.
+From the workspace root, `./looloo-deploy/scripts/start-app.sh` starts the app
+and prints its localhost URL. Use `./looloo-deploy/scripts/start.sh` to start
+both the app and monitoring. Run `./looloo-deploy/scripts/stop.sh` to stop the
+app workloads and their helper processes.
 
 For local database testing, the API runs in Minikube and the databases stay on
 the host. The API Secret uses `host.minikube.internal` for both database hosts;
