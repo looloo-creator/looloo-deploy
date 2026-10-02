@@ -2,6 +2,8 @@ api:
   enabled: true
   replicaCount: 1
   containerPort: 30000
+  nodeEnv: development
+  enableTestToken: true
   image:
     repository: looloo-api
     tag: minikube
