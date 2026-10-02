@@ -1,0 +1,17 @@
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "looloo.fullname" . }}-api
+  labels:
+    {{- include "looloo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-api
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+    {{- end }}

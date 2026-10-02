@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "looloo.fullname" . }}-kong-gateway
+  labels:
+    {{- include "looloo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-kong-gateway
+spec:
+  replicas: {{ .Values.kong.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "looloo.fullname" . }}-kong-gateway
+  template:
+    metadata:
+      labels:
+        {{- include "looloo.labels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "looloo.fullname" . }}-kong-gateway
+    spec:
+      containers:
+        - name: kong
+          image: "{{ .Values.kong.image.repository }}:{{ .Values.kong.image.tag }}"
+          imagePullPolicy: {{ .Values.kong.image.pullPolicy }}
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /kong/declarative/kong.yml
+            - name: KONG_ADMIN_LISTEN
+              value: "off"
+            - name: KONG_PROXY_LISTEN
+              value: 0.0.0.0:8000
+            - name: KONG_NGINX_WORKER_PROCESSES
+              value: "1"
+          ports:
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: proxy
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: proxy
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.kong.resources | nindent 12 }}
+          volumeMounts:
+            - name: declarative-config
+              mountPath: /kong/declarative
+              readOnly: true
+      volumes:
+        - name: declarative-config
+          configMap:
+            name: {{ include "looloo.fullname" . }}-kong-config

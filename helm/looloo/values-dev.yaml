@@ -1,0 +1,38 @@
+api:
+  enabled: true
+  replicaCount: 1
+  containerPort: 30000
+  image:
+    repository: looloo-api
+    tag: minikube
+    pullPolicy: Never
+  secretName: looloo-api-env
+
+web:
+  replicaCount: 1
+  image:
+    repository: looloo-web
+    tag: minikube
+    pullPolicy: Never
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+kong:
+  replicaCount: 1
+  apiUrl: ""
+  image:
+    repository: kong
+    tag: "3.9"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

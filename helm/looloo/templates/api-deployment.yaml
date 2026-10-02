@@ -1,0 +1,30 @@
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "looloo.fullname" . }}-api
+  labels:
+    {{- include "looloo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "looloo.fullname" . }}-api
+  template:
+    metadata:
+      labels:
+        {{- include "looloo.labels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "looloo.fullname" . }}-api
+    spec:
+      containers:
+        - name: looloo-api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.containerPort }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.api.secretName }}
+{{- end }}

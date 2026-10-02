@@ -1,0 +1,38 @@
+api:
+  enabled: true
+  replicaCount: 1
+  containerPort: 3000
+  image:
+    repository: rajasekar9698/looloo-api
+    tag: "2.0.0"
+    pullPolicy: IfNotPresent
+  secretName: looloo-api-env
+
+web:
+  replicaCount: 1
+  image:
+    repository: rajasekar9698/one-pay-admin
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+kong:
+  replicaCount: 1
+  apiUrl: ""
+  image:
+    repository: kong
+    tag: "3.9"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
