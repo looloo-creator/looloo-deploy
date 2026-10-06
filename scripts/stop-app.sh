@@ -38,7 +38,7 @@ stop_pid_file() {
 if command -v kubectl >/dev/null 2>&1 && command -v minikube >/dev/null 2>&1 && \
    [[ "$(minikube status --format='{{.Host}}' 2>/dev/null || true)" == "Running" ]]; then
   printf 'Scaling down Looloo Deployments...\n'
-  kubectl -n "$NAMESPACE" scale deployment/looloo-api deployment/looloo-kong-gateway deployment/looloo-web \
+  kubectl -n "$NAMESPACE" scale deployment/looloo-api deployment/looloo-chatbot-api deployment/looloo-kong-gateway deployment/looloo-web \
     --replicas=0 --timeout=60s 2>/dev/null || true
 else
   printf 'Minikube is not running; skipping Kubernetes scale-down.\n'

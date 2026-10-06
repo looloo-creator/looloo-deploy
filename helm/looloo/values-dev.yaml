@@ -10,6 +10,18 @@ api:
     pullPolicy: Never
   secretName: looloo-api-env
 
+chatbotApi:
+  enabled: true
+  replicaCount: 1
+  containerPort: 3001
+  image:
+    repository: chatbot-api
+    tag: minikube
+    pullPolicy: Never
+  secretName: chatbot-api-env
+  jwtSecretName: looloo-api-env
+  ollamaBaseUrl: http://host.minikube.internal:11434
+
 web:
   replicaCount: 1
   image:
@@ -27,6 +39,7 @@ web:
 kong:
   replicaCount: 1
   apiUrl: ""
+  chatbotApiUrl: ""
   image:
     repository: kong
     tag: "3.9"

@@ -1,0 +1,42 @@
+{{- if .Values.chatbotApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "looloo.fullname" . }}-chatbot-api
+  labels:
+    {{- include "looloo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-chatbot-api
+spec:
+  replicas: {{ .Values.chatbotApi.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "looloo.fullname" . }}-chatbot-api
+  template:
+    metadata:
+      labels:
+        {{- include "looloo.labels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "looloo.fullname" . }}-chatbot-api
+    spec:
+      containers:
+        - name: chatbot-api
+          image: "{{ .Values.chatbotApi.image.repository }}:{{ .Values.chatbotApi.image.tag }}"
+          imagePullPolicy: {{ .Values.chatbotApi.image.pullPolicy }}
+          env:
+            - name: PORT
+              value: {{ .Values.chatbotApi.containerPort | quote }}
+            - name: NODE_ENV
+              value: production
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.chatbotApi.ollamaBaseUrl | quote }}
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.chatbotApi.jwtSecretName }}
+                  key: JWT_SECRET_KEY
+          envFrom:
+            - secretRef:
+                name: {{ .Values.chatbotApi.secretName }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.chatbotApi.containerPort }}
+{{- end }}

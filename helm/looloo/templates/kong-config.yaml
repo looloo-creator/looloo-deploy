@@ -23,3 +23,10 @@ data:
             paths:
               - /api
             strip_path: true
+      - name: chatbot-api
+        url: {{ .Values.kong.chatbotApiUrl | default (printf "http://%s-chatbot-api.%s.svc.cluster.local:%v" (include "looloo.fullname" .) .Release.Namespace .Values.chatbotApi.containerPort) | quote }}
+        routes:
+          - name: chatbot-api
+            paths:
+              - /chatbot-api
+            strip_path: true

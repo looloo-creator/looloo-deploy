@@ -1,8 +1,8 @@
 # Looloo Helm Chart
 
-This chart deploys the Looloo API, web app, and DB-less Kong Gateway into one
-namespace. Web requests under `/api/` go through Kong, which strips that prefix
-before forwarding them to the API.
+This chart deploys the Looloo API, chatbot API, web app, and DB-less Kong Gateway into one
+namespace. Web requests under `/api/` and `/chatbot-api/` go through Kong,
+which strips each prefix before forwarding to the corresponding API.
 
 ## Deploy to Minikube
 
@@ -11,17 +11,29 @@ and prints its localhost URL. Use `./looloo-deploy/scripts/start.sh` to start
 both the app and monitoring. Run `./looloo-deploy/scripts/stop.sh` to stop the
 app workloads and their helper processes.
 
-For local database testing, the API runs in Minikube and the databases stay on
-the host. The API Secret uses `host.minikube.internal` for both database hosts;
-the host database services must accept connections from Minikube on those
-ports. In another terminal, build/load the app images and install the chart's
-development values from the workspace root:
+After the app is running, use `./looloo-deploy/scripts/refresh.sh` to rebuild
+and reload the API, chatbot API, and web images, apply current secrets and Helm
+settings, and roll out the app deployments. It keeps the existing localhost
+port-forward URL and does not stop Minikube or monitoring.
+
+For local testing, `start-app.sh` builds the chatbot API image, loads it into
+Minikube, creates its Secret from `chatbot-api/.env`, and waits for its
+Deployment. Create that file from `chatbot-api/.env.example`; its
+`JWT_SECRET_KEY` must match `looloo-api/.env`. The helper routes database and
+Ollama connections through its host relay and points Kong's `/chatbot-api/`
+route at the in-cluster chatbot API Service.
+
+For a manual Helm deploy, provide `chatbot-api-env` and `looloo-api-env`
+Kubernetes Secrets and set the chatbot API image values. To build/load the app
+images and install the chart's development values from the workspace root:
 
 ```bash
 cd looloo-api && docker build -f Dockerfile.production -t looloo-api:minikube .
+cd ../chatbot-api && docker build -t chatbot-api:minikube .
 cd ../looloo-web && docker build -f Dockerfile.production -t looloo-web:minikube .
 cd ..
 minikube image load looloo-api:minikube
+minikube image load chatbot-api:minikube
 minikube image load looloo-web:minikube
 cd looloo-api && npm run k8s:secrets && cd ..
 helm upgrade --install looloo looloo-deploy/helm/looloo \
@@ -32,9 +44,9 @@ kubectl -n looloo rollout status deployment/looloo-web
 ```
 
 In development values, Kong forwards `/api/*` to the in-cluster API Service.
-The API uses port `30000`, matching the local `.env`. The default chart also
-deploys the API inside Kubernetes; configure database URLs reachable from the
-pod network for other environments.
+The Looloo API uses port `30000`, matching its local `.env`; chatbot-api uses
+port `3001`. Configure database and Ollama URLs reachable from the pod network
+for other environments.
 
 The database processes on the host must listen on an address reachable from
 Minikube and allow connections from its network. Binding only to host
@@ -57,6 +69,7 @@ kubectl -n looloo port-forward service/looloo-kong-gateway 8080:80
 ```
 
 Then send requests to `http://localhost:8080/api/...`.
+Assistant requests use `http://localhost:8080/chatbot-api/...`.
 
 ## Configure Images
 

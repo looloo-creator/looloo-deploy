@@ -1,0 +1,17 @@
+{{- if .Values.chatbotApi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "looloo.fullname" . }}-chatbot-api
+  labels:
+    {{- include "looloo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-chatbot-api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "looloo.fullname" . }}-chatbot-api
+  ports:
+    - name: http
+      port: {{ .Values.chatbotApi.containerPort }}
+      targetPort: http
+{{- end }}
