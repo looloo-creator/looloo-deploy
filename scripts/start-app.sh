@@ -6,6 +6,8 @@ STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/looloo-minikube-${UID}"
 API_IMAGE="looloo-api:minikube"
 CHATBOT_API_IMAGE="chatbot-api:minikube"
 WEB_IMAGE="looloo-web:minikube"
+ASSISTANT_DIR="$ROOT_DIR/looloo-assistant"
+WEB_DIR="$ROOT_DIR/looloo-web"
 NAMESPACE="looloo"
 RELEASE="looloo"
 CHART_DIR="$ROOT_DIR/looloo-deploy/helm/looloo"
@@ -26,6 +28,18 @@ if [[ ! -f "$ROOT_DIR/chatbot-api/.env" ]]; then
   printf 'Missing chatbot-api/.env. Create it from chatbot-api/.env.example before starting the app.\n' >&2
   exit 1
 fi
+
+printf 'Building and packaging the assistant library...\n'
+npm --prefix "$ASSISTANT_DIR" run build
+npm pack "$ASSISTANT_DIR/dist/looloo-assistant" --pack-destination "$WEB_DIR/vendor"
+node - "$WEB_DIR/package.json" <<'NODE'
+const fs = require('node:fs');
+const packagePath = process.argv[2];
+const manifest = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+manifest.dependencies['@looloo/assistant'] = 'file:vendor/looloo-assistant-0.1.0.tgz';
+fs.writeFileSync(packagePath, `${JSON.stringify(manifest, null, 2)}\n`);
+NODE
+npm --prefix "$WEB_DIR" install
 
 if ! grep -Eq '^DB_HOST[[:space:]]*=[[:space:]]*host\.minikube\.internal[[:space:]]*$' "$ROOT_DIR/looloo-api/.env" || \
    ! grep -Eq '^MONGO_URL=mongodb://host\.minikube\.internal:' "$ROOT_DIR/looloo-api/.env"; then
