@@ -28,7 +28,7 @@ From the workspace root, choose a launcher:
 ```
 
 `start-app.sh` builds and loads the local images, starts a host-only relay for
-the local PostgreSQL and MongoDB ports, installs the app Helm release, and
+the local PostgreSQL and Ollama ports, installs the app Helm release, and
 prints the app URL. `start-monitor.sh` installs the monitoring release and
 opens Grafana in the background; `start.sh` runs both in sequence. To stop just
 the app, run `./looloo-deploy/scripts/stop-app.sh`; to stop just monitoring, run

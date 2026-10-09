@@ -85,9 +85,6 @@ const values = dotenv.parse(fs.readFileSync(source));
 for (const key of ['DB_HOST', 'PG_HOST']) {
   if (values[key] === 'host.minikube.internal') values[key] = '127.0.0.1';
 }
-for (const key of ['MONGO_URL', 'MONGO_URI']) {
-  if (values[key]) values[key] = values[key].replace(/host\.minikube\.internal/g, '127.0.0.1');
-}
 fs.writeFileSync(target, Object.entries(values).map(([k, v]) => `${k}=${String(v).replace(/\n/g, '\\n')}`).join('\n') + '\n', { mode: 0o600 });
 NODE
 
@@ -132,5 +129,5 @@ start_service chatbot-api "$CHATBOT_DIR" 3001 "$CHATBOT_DIR/.env" start:dev
 start_service looloo-web "$WEB_DIR" 4200 /dev/null start -- --host 127.0.0.1 --port 4200
 
 printf '\nDevelopment apps are running with file watching enabled:\n  Web:         http://localhost:4200\n  Looloo API:  http://localhost:%s\n  Chatbot API: http://localhost:3001\n' "$api_port"
-printf 'Local PostgreSQL, MongoDB, and Ollama services must also be available as configured in the env files.\n'
+printf 'Local PostgreSQL and Ollama services must also be available as configured in the env files.\n'
 printf 'Stop them with scripts/stop-dev.sh. Logs and process state: %s\n' "$STATE_DIR"

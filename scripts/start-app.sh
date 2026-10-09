@@ -41,9 +41,8 @@ fs.writeFileSync(packagePath, `${JSON.stringify(manifest, null, 2)}\n`);
 NODE
 npm --prefix "$WEB_DIR" install
 
-if ! grep -Eq '^DB_HOST[[:space:]]*=[[:space:]]*host\.minikube\.internal[[:space:]]*$' "$ROOT_DIR/looloo-api/.env" || \
-   ! grep -Eq '^MONGO_URL=mongodb://host\.minikube\.internal:' "$ROOT_DIR/looloo-api/.env"; then
-  printf 'Set DB_HOST and MONGO_URL in looloo-api/.env to host.minikube.internal for Minikube access.\n' >&2
+if ! grep -Eq '^DB_HOST[[:space:]]*=[[:space:]]*host\.minikube\.internal[[:space:]]*$' "$ROOT_DIR/looloo-api/.env"; then
+  printf 'Set DB_HOST in looloo-api/.env to host.minikube.internal for Minikube PostgreSQL access.\n' >&2
   exit 1
 fi
 
@@ -86,7 +85,7 @@ relay_log="$STATE_DIR/db-relay.log"
 nohup node - "$host_ip" >"$relay_log" 2>&1 <<'NODE' &
 const net = require('node:net');
 const bindAddress = process.argv[2];
-for (const port of [5432, 11434, 27017]) {
+for (const port of [5432, 11434]) {
   const server = net.createServer((client) => {
     const upstream = net.connect({ host: '127.0.0.1', port });
     client.pipe(upstream);
@@ -103,7 +102,7 @@ for (const port of [5432, 11434, 27017]) {
 NODE
 echo "$!" > "$relay_pid_file"
 for _ in {1..30}; do
-  if grep -q "Listening on $host_ip:5432" "$relay_log" && grep -q "Listening on $host_ip:11434" "$relay_log" && grep -q "Listening on $host_ip:27017" "$relay_log"; then
+  if grep -q "Listening on $host_ip:5432" "$relay_log" && grep -q "Listening on $host_ip:11434" "$relay_log"; then
     break
   fi
   if ! kill -0 "$(<"$relay_pid_file")" 2>/dev/null; then
@@ -113,7 +112,7 @@ for _ in {1..30}; do
   fi
   sleep 1
 done
-if ! grep -q "Listening on $host_ip:5432" "$relay_log" || ! grep -q "Listening on $host_ip:11434" "$relay_log" || ! grep -q "Listening on $host_ip:27017" "$relay_log"; then
+if ! grep -q "Listening on $host_ip:5432" "$relay_log" || ! grep -q "Listening on $host_ip:11434" "$relay_log"; then
   cat "$relay_log" >&2
   printf 'Timed out starting the host database relay.\n' >&2
   exit 1
